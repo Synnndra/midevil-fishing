@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - Primordial Pit Fishing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .leaderboard-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            padding-top: 80px;
+        }
+
+        .leaderboard-container {
+            background: rgba(45, 65, 100, 0.92);
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .leaderboard-container h2 {
+            font-family: 'MedievalSharp', cursive;
+            font-size: 2rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .lb-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .lb-tab {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-list {
+            max-height: none;
+        }
+
+        .leaderboard-entry {
+            padding: 12px 15px;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .lb-rank {
+            width: 40px;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        .lb-wallet {
+            font-size: 0.9rem;
+            color: #fff;
+            flex: 1;
+        }
+
+        .lb-wallet .discord-name {
+            color: #5865F2;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .discord-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .lb-wallet .wallet-name {
+            font-family: monospace;
+            color: #aaa;
+        }
+
+        .lb-score {
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(45, 65, 100, 0.9);
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 0.95rem;
+            color: var(--gold);
+            text-decoration: none;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(55, 75, 110, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        .leaderboard-empty {
+            padding: 40px;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(60, 80, 120, 0.8);
+            border: 1px solid #667;
+            border-radius: 8px;
+            padding: 15px 25px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #fff;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 480px) {
+            .leaderboard-container {
+                padding: 20px 15px;
+            }
+
+            .leaderboard-container h2 {
+                font-size: 1.5rem;
+            }
+
+            .lb-tab {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .leaderboard-entry {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+
+            .stat-box {
+                padding: 10px 20px;
+            }
+
+            .stat-value {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">Primordial Pit Fishing</h1>
+
+        <a href="index.html" class="back-link">Back to Game</a>
+
+        <!-- Mute Button -->
+        <button id="muteBtn" class="mute-btn" onclick="toggleMute()">🔊</button>
+
+        <div class="leaderboard-page">
+            <div class="leaderboard-container">
+                <h2>Leaderboard</h2>
+
+                <div class="stats-row" id="statsRow">
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalCatches">-</div>
+                        <div class="stat-label">Total Catches</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="totalPlayers">-</div>
+                        <div class="stat-label">Players</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="essenceRemaining">-</div>
+                        <div class="stat-label">Essence Left</div>
+                    </div>
+                </div>
+
+                <div class="lb-tabs">
+                    <button class="lb-tab active" data-type="catches" onclick="switchType('catches')">Catches</button>
+                    <button class="lb-tab" data-type="legendary" onclick="switchType('legendary')">Legendary</button>
+                    <button class="lb-tab" data-type="weight" onclick="switchType('weight')">Weight (lbs)</button>
+                </div>
+
+                <div id="leaderboardList" class="leaderboard-list">
+                    <div class="leaderboard-empty">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'catches';
+
+        // Background music
+        const BACKGROUND_MUSIC = new Audio('sounds/background.mp3');
+        BACKGROUND_MUSIC.loop = true;
+        BACKGROUND_MUSIC.volume = 0.3;
+        let isMuted = false;
+
+        function startBackgroundMusic() {
+            if (!isMuted) {
+                BACKGROUND_MUSIC.play().catch(() => {});
+            }
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            if (isMuted) {
+                BACKGROUND_MUSIC.pause();
+            } else {
+                BACKGROUND_MUSIC.play().catch(() => {});
+            }
+            document.getElementById('muteBtn').textContent = isMuted ? '🔇' : '🔊';
+        }
+
+        // Start music on page load or first click
+        startBackgroundMusic();
+        document.addEventListener('click', function startMusicOnClick() {
+            startBackgroundMusic();
+            document.removeEventListener('click', startMusicOnClick);
+        }, { once: true });
+
+        async function fetchLeaderboard(type) {
+            try {
+                const response = await fetch(`/api/leaderboard?type=${type}&limit=25`);
+                const data = await response.json();
+                return data.leaderboard || [];
+            } catch (error) {
+                console.error('Failed to fetch leaderboard:', error);
+                return [];
+            }
+        }
+
+        async function fetchStats() {
+            try {
+                // Get essence remaining
+                const essenceRes = await fetch('/api/primordial-essence');
+                const essenceData = await essenceRes.json();
+                document.getElementById('essenceRemaining').textContent = essenceData.remaining || 0;
+
+                // Get catches leaderboard to calculate totals
+                const catchesRes = await fetch('/api/leaderboard?type=catches&limit=100');
+                const catchesData = await catchesRes.json();
+
+                if (catchesData.leaderboard && catchesData.leaderboard.length > 0) {
+                    const totalCatches = catchesData.leaderboard.reduce((sum, entry) => sum + parseInt(entry.score), 0);
+                    document.getElementById('totalCatches').textContent = totalCatches;
+                    document.getElementById('totalPlayers').textContent = catchesData.leaderboard.length;
+                } else {
+                    document.getElementById('totalCatches').textContent = '0';
+                    document.getElementById('totalPlayers').textContent = '0';
+                }
+            } catch (error) {
+                console.error('Failed to fetch stats:', error);
+            }
+        }
+
+        function displayLeaderboard(leaderboard) {
+            const container = document.getElementById('leaderboardList');
+
+            if (leaderboard.length === 0) {
+                container.innerHTML = '<div class="leaderboard-empty">No catches yet! Be the first to fish!</div>';
+                return;
+            }
+
+            container.innerHTML = leaderboard.map((entry, index) => {
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                const score = currentType === 'weight' ? parseFloat(entry.score).toFixed(1) : entry.score;
+                let displayName;
+                if (entry.discordName) {
+                    const avatarImg = entry.discordAvatar
+                        ? `<img src="${entry.discordAvatar}" alt="" class="discord-avatar" onerror="this.style.display='none'">`
+                        : '';
+                    displayName = `<span class="discord-name">${avatarImg}${entry.discordName}</span>`;
+                } else {
+                    displayName = `<span class="wallet-name">${entry.wallet}</span>`;
+                }
+                return `
+                    <div class="leaderboard-entry">
+                        <span class="lb-rank">${medal || entry.rank}</span>
+                        <span class="lb-wallet">${displayName}</span>
+                        <span class="lb-score">${score}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function switchType(type) {
+            currentType = type;
+
+            document.querySelectorAll('.lb-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.type === type);
+            });
+
+            document.getElementById('leaderboardList').innerHTML = '<div class="leaderboard-empty">Loading...</div>';
+
+            const leaderboard = await fetchLeaderboard(type);
+            displayLeaderboard(leaderboard);
+        }
+
+        // Initial load
+        async function init() {
+            await fetchStats();
+            const leaderboard = await fetchLeaderboard('catches');
+            displayLeaderboard(leaderboard);
+        }
+
+        init();
+
+        // Auto-refresh every 30 seconds
+        setInterval(async () => {
+            await fetchStats();
+            const leaderboard = await fetchLeaderboard(currentType);
+            displayLeaderboard(leaderboard);
+        }, 30000);
+    </script>
+</body>
+</html>

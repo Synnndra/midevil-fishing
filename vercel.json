@@ -1,0 +1,75 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.jpg",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.png",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "sounds/**/*.mp3",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/helius",
+      "dest": "/api/helius.js"
+    },
+    {
+      "src": "/api/record-wallet",
+      "dest": "/api/record-wallet.js"
+    },
+    {
+      "src": "/api/primordial-essence",
+      "dest": "/api/primordial-essence.js"
+    },
+    {
+      "src": "/api/cooldown",
+      "dest": "/api/cooldown.js"
+    },
+    {
+      "src": "/api/leaderboard",
+      "dest": "/api/leaderboard.js"
+    },
+    {
+      "src": "/api/discord-callback",
+      "dest": "/api/discord-callback.js"
+    },
+    {
+      "src": "/api/discord-status",
+      "dest": "/api/discord-status.js"
+    },
+    {
+      "src": "/api/discord",
+      "dest": "/api/discord.js"
+    },
+    {
+      "src": "/api/admin-essence",
+      "dest": "/api/admin-essence.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
