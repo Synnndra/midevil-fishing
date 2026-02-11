@@ -8,10 +8,10 @@
 
 // Fisherman options
 const FISHERMEN = [
-    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '30.3%', bottom: '18.4%', width: '198px' }, lure: { left: '40.7%', top: '71.5%' } },
-    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '36.7%', bottom: '11.9%', width: '209px' }, lure: { left: '47.8%', top: '75.2%' } },
-    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '30.8%', bottom: '18.1%', width: '198px' }, lure: { left: '41.1%', top: '70.1%' } },
-    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '33.1%', bottom: '11.9%', width: '220px' }, lure: { left: '44.7%', top: '73.5%' } }
+    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '30.3%', bottom: '18.4%', width: '10.3%' }, lure: { left: '40.7%', top: '71.5%' } },
+    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '36.7%', bottom: '11.9%', width: '10.9%' }, lure: { left: '47.8%', top: '75.2%' } },
+    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '30.8%', bottom: '18.1%', width: '10.3%' }, lure: { left: '41.1%', top: '70.1%' } },
+    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '33.1%', bottom: '11.9%', width: '11.5%' }, lure: { left: '44.7%', top: '73.5%' } }
 ];
 
 // Fish Species (MidEvil themed)
@@ -375,7 +375,7 @@ async function selectFisherman(index) {
     if (pos) {
         elements.fisherman.style.left = pos.left;
         elements.fisherman.style.bottom = pos.bottom;
-        elements.fishermanImg.style.width = pos.width;
+        elements.fisherman.style.width = pos.width;
     }
 
     // Apply per-fisherman lure position
@@ -793,9 +793,10 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
         div.style.left = f.pos.left;
         div.style.bottom = f.pos.bottom;
         div.style.cursor = 'grab';
+        div.style.width = f.pos.width;
         div.style.zIndex = 50 + i;
         div.innerHTML = `
-            <img src="${f.image}" style="width:${f.pos.width}; height:auto; object-fit:contain; filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.7));">
+            <img src="${f.image}" style="width:100%; height:auto; object-fit:contain; filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.7));">
             <div style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:#ffd700; padding:4px 8px; border-radius:4px; font-size:0.75rem; text-align:center; white-space:nowrap;">${f.name}</div>
             <div class="pos-label" style="position:absolute; top:calc(100% + 24px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); color:#0f0; padding:2px 6px; border-radius:3px; font-family:monospace; font-size:0.65rem; text-align:center; white-space:nowrap;"></div>
         `;
