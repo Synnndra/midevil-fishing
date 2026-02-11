@@ -146,7 +146,19 @@ export default async function handler(req, res) {
             }
 
             // Get top players
-            const results = await redisZrevrangeWithScores(key, 0, limit - 1);
+            let results = await redisZrevrangeWithScores(key, 0, limit - 1);
+
+            // If score leaderboard is empty, seed it from weight data
+            if (type === 'score' && (!results || results.length === 0)) {
+                const weightResults = await redisZrevrangeWithScores(WEIGHT_KEY, 0, -1);
+                if (weightResults && weightResults.length > 0) {
+                    // Copy weight scores into score key
+                    for (let i = 0; i < weightResults.length; i += 2) {
+                        await redisZincrby(SCORE_KEY, parseFloat(weightResults[i + 1]), weightResults[i]);
+                    }
+                    results = await redisZrevrangeWithScores(SCORE_KEY, 0, limit - 1);
+                }
+            }
 
             if (!results || results.length === 0) {
                 return res.status(200).json({ leaderboard: [], type });
