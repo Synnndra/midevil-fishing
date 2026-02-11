@@ -915,15 +915,17 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
         document.addEventListener('touchend', () => { dragging = false; });
     });
 
-    // Copy button
-    const copyBtn = document.createElement('button');
-    copyBtn.textContent = 'Copy Positions';
-    copyBtn.style.cssText = 'position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:999; padding:12px 24px; background:#ffd700; color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:1rem;';
-    copyBtn.addEventListener('click', () => {
-        const rect = container.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const positions = FISHERMEN.map((f, i) => {
+    // Per-fisherman copy buttons
+    const btnBar = document.createElement('div');
+    btnBar.style.cssText = 'position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:999; display:flex; gap:8px;';
+    FISHERMEN.forEach((f, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = `Copy ${f.name}`;
+        btn.style.cssText = 'padding:10px 16px; background:#ffd700; color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:0.85rem;';
+        btn.addEventListener('click', () => {
+            const rect = container.getBoundingClientRect();
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
             const div = document.getElementById(`pos-fisherman-${i}`);
             const divRect = div.getBoundingClientRect();
             const leftPct = ((divRect.left - rect.left) / rect.width * 100).toFixed(1);
@@ -932,13 +934,13 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
             const lr = lureDiv.getBoundingClientRect();
             const lureLPct = (lr.left / vw * 100).toFixed(1);
             const lureTPct = (lr.top / vh * 100).toFixed(1);
-            return `[${f.name} pos:${leftPct}%,${bottomPct}% lure:${lureLPct}%,${lureTPct}%]`;
+            const text = `${f.name} pos:${leftPct}%,${bottomPct}% lure:${lureLPct}%,${lureTPct}%`;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = `Copy ${f.name}`, 2000);
+            });
         });
-        const text = positions.join(' ');
-        navigator.clipboard.writeText(text).then(() => {
-            copyBtn.textContent = 'Copied!';
-            setTimeout(() => copyBtn.textContent = 'Copy Positions', 2000);
-        });
+        btnBar.appendChild(btn);
     });
-    document.body.appendChild(copyBtn);
+    document.body.appendChild(btnBar);
 }
