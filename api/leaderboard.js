@@ -10,7 +10,6 @@ const WEIGHT_KEY = 'leaderboard:weight';          // Sorted set: wallet -> total
 const SCORE_KEY = 'leaderboard:score';            // Sorted set: wallet -> cumulative score
 const WALLETS_KEY = 'leaderboard:wallets';        // Hash: wallet -> display name (truncated)
 const DISCORD_LINK_PREFIX = 'discord_link:';      // Discord link data
-const COOLDOWN_PREFIX = 'fishing_cooldown:';      // Verify wallet has played
 
 // Rarity multipliers for score calculation (score = weight × multiplier)
 const RARITY_MULTIPLIERS = {
@@ -129,6 +128,9 @@ export default async function handler(req, res) {
 
             let key;
             switch (type) {
+                case 'catches':
+                    key = CATCHES_KEY;
+                    break;
                 case 'legendary':
                     key = LEGENDARY_KEY;
                     break;
@@ -210,14 +212,6 @@ export default async function handler(req, res) {
             const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
             if (!base58Regex.test(wallet)) {
                 return res.status(400).json({ error: 'Invalid wallet address' });
-            }
-
-            // Verify wallet has an active game session (cooldown exists)
-            const todayKey = getTodayKey();
-            const cooldownKey = `${COOLDOWN_PREFIX}${wallet}:${todayKey}`;
-            const hasPlayed = await redisExists(cooldownKey);
-            if (!hasPlayed) {
-                return res.status(403).json({ error: 'No active game session' });
             }
 
             // Update total catches
