@@ -8,10 +8,10 @@
 
 // Fisherman options
 const FISHERMEN = [
-    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '47.6%', bottom: '21.1%', width: '198px' }, lure: { left: '58%', top: '67.7%' } },
-    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '5%', bottom: '41.4%', width: '209px' }, lure: { left: '4.8%', top: '31.8%' } },
-    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '7.7%', bottom: '53.7%', width: '198px' }, lure: { left: '1.1%', top: '38.9%' } },
-    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '1.6%', bottom: '52.1%', width: '220px' }, lure: { left: '7.6%', top: '38.2%' } }
+    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '29.8%', bottom: '48.3%', width: '198px' }, lure: { left: '40.1%', top: '61.6%' } },
+    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '31.4%', bottom: '2.4%', width: '209px' }, lure: { left: '42.3%', top: '86.7%' } },
+    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '29.5%', bottom: '3.6%', width: '198px' }, lure: { left: '39.9%', top: '85.6%' } },
+    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '28.6%', bottom: '2.6%', width: '220px' }, lure: { left: '40.2%', top: '86.4%' } }
 ];
 
 // Fish Species (MidEvil themed)
