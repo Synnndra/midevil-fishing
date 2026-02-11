@@ -7,9 +7,19 @@ const CATCHES_KEY = 'leaderboard:catches';        // Sorted set: wallet -> total
 const LEGENDARY_KEY = 'leaderboard:legendary';    // Sorted set: wallet -> legendary count
 const ESSENCE_KEY = 'leaderboard:essence';        // Sorted set: wallet -> essence count
 const WEIGHT_KEY = 'leaderboard:weight';          // Sorted set: wallet -> total weight
+const SCORE_KEY = 'leaderboard:score';            // Sorted set: wallet -> cumulative score
 const WALLETS_KEY = 'leaderboard:wallets';        // Hash: wallet -> display name (truncated)
 const DISCORD_LINK_PREFIX = 'discord_link:';      // Discord link data
 const COOLDOWN_PREFIX = 'fishing_cooldown:';      // Verify wallet has played
+
+// Rarity multipliers for score calculation (score = weight × multiplier)
+const RARITY_MULTIPLIERS = {
+    common: 1,
+    uncommon: 2,
+    rare: 5,
+    epic: 10,
+    legendary: 25
+};
 
 // Rate limiting
 const RATE_LIMIT_PREFIX = 'rate_limit_lb:';
@@ -128,8 +138,11 @@ export default async function handler(req, res) {
                 case 'weight':
                     key = WEIGHT_KEY;
                     break;
+                case 'score':
+                    key = SCORE_KEY;
+                    break;
                 default:
-                    key = CATCHES_KEY;
+                    key = SCORE_KEY;
             }
 
             // Get top players
@@ -178,7 +191,7 @@ export default async function handler(req, res) {
                     fullWallet: wallet,
                     discordName: discord?.name || null,
                     discordAvatar: discord?.avatar || null,
-                    score: type === 'weight' ? score.toFixed(1) : Math.floor(score)
+                    score: (type === 'weight' || type === 'score') ? score.toFixed(1) : Math.floor(score)
                 });
             }
 
@@ -219,6 +232,13 @@ export default async function handler(req, res) {
             const weight = parseFloat(fish.weight) || 0;
             if (weight > 0) {
                 await redisZincrby(WEIGHT_KEY, weight, wallet);
+            }
+
+            // Calculate and update score (weight × rarity multiplier)
+            const multiplier = RARITY_MULTIPLIERS[fish.rarity] || 1;
+            const catchScore = weight * multiplier;
+            if (catchScore > 0) {
+                await redisZincrby(SCORE_KEY, catchScore, wallet);
             }
 
             // Store wallet display name

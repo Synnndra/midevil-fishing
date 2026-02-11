@@ -208,9 +208,9 @@
                 </div>
 
                 <div class="lb-tabs">
-                    <button class="lb-tab active" data-type="catches" onclick="switchType('catches')">Catches</button>
+                    <button class="lb-tab active" data-type="score" onclick="switchType('score')">Score</button>
+                    <button class="lb-tab" data-type="catches" onclick="switchType('catches')">Catches</button>
                     <button class="lb-tab" data-type="legendary" onclick="switchType('legendary')">Legendary</button>
-                    <button class="lb-tab" data-type="weight" onclick="switchType('weight')">Weight (lbs)</button>
                 </div>
 
                 <div id="leaderboardList" class="leaderboard-list">
@@ -221,7 +221,7 @@
     </div>
 
     <script>
-        let currentType = 'catches';
+        let currentType = 'score';
 
         // Background music
         const BACKGROUND_MUSIC = new Audio('sounds/background.mp3');
@@ -297,7 +297,7 @@
 
             container.innerHTML = leaderboard.map((entry, index) => {
                 const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
-                const score = currentType === 'weight' ? parseFloat(entry.score).toFixed(1) : entry.score;
+                const score = (currentType === 'weight' || currentType === 'score') ? parseFloat(entry.score).toFixed(1) : entry.score;
                 let displayName;
                 if (entry.discordName) {
                     const avatarImg = entry.discordAvatar
@@ -333,7 +333,7 @@
         // Initial load
         async function init() {
             await fetchStats();
-            const leaderboard = await fetchLeaderboard('catches');
+            const leaderboard = await fetchLeaderboard('score');
             displayLeaderboard(leaderboard);
         }
 

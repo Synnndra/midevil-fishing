@@ -50,6 +50,14 @@ const RARITY_COLORS = {
     legendary: '#ffd700'
 };
 
+const RARITY_MULTIPLIERS = {
+    common: 1,
+    uncommon: 2,
+    rare: 5,
+    epic: 10,
+    legendary: 25
+};
+
 // Pre-computed caches for performance
 const SPECIES_BY_RARITY = {};
 const RARITY_TOTAL = Object.values(RARITY_WEIGHTS).reduce((a, b) => a + b, 0);
@@ -567,6 +575,9 @@ function generateFish() {
     const baseWeight = { Tiny: 0.5, Small: 2, Medium: 5, Large: 15, Massive: 40 };
     const weight = (baseWeight[size] + Math.random() * baseWeight[size]).toFixed(1);
 
+    const multiplier = RARITY_MULTIPLIERS[rarity] || 1;
+    const score = (parseFloat(weight) * multiplier).toFixed(1);
+
     return {
         species: species.name,
         image: species.image,
@@ -576,6 +587,7 @@ function generateFish() {
         color,
         special,
         weight: `${weight} lbs`,
+        score,
         timestamp: new Date().toLocaleTimeString()
     };
 }
@@ -632,6 +644,7 @@ function displayCatch(fish, foundEssence = false) {
             <span class="trait">${fish.weight}</span>
             ${fish.special !== 'None' ? `<span class="trait">${fish.special}</span>` : ''}
         </div>
+        <div class="fish-score">+${fish.score} pts</div>
     `;
 
     elements.catchDisplay.style.display = 'flex';
