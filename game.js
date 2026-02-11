@@ -1,6 +1,11 @@
 // Primordial Pit Fishing Game
 
 // ============================================
+// LOCAL DEV MODE (skip API calls on localhost)
+// ============================================
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+// ============================================
 // CONFIGURATION
 // ============================================
 // Primordial Essence - rare limited drop (100 total for the week)
@@ -8,10 +13,10 @@
 
 // Fisherman options
 const FISHERMEN = [
-    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '30.3%', bottom: '18.4%', width: '10.3%' }, lure: { left: '40.7%', top: '71.5%' } },
-    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '36.7%', bottom: '11.9%', width: '10.9%' }, lure: { left: '47.8%', top: '75.2%' } },
-    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '30.8%', bottom: '18.1%', width: '10.3%' }, lure: { left: '41.1%', top: '70.1%' } },
-    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '33.1%', bottom: '11.9%', width: '11.5%' }, lure: { left: '44.7%', top: '73.5%' } }
+    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '18.6%', bottom: '22.6%', width: '14.5%' }, castFrom: { left: '29.3%', top: '57.3%' }, lure: { left: '62.0%', top: '61.6%' } },
+    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '12.6%', bottom: '34.5%', width: '15.3%' }, castFrom: { left: '24.1%', top: '40.5%' }, lure: { left: '66.5%', top: '64.4%' } },
+    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '20.2%', bottom: '45.1%', width: '14.5%' }, castFrom: { left: '31.1%', top: '34.9%' }, lure: { left: '60.0%', top: '59.5%' } },
+    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '12.0%', bottom: '34.4%', width: '16.1%' }, castFrom: { left: '24.1%', top: '44.7%' }, lure: { left: '64.7%', top: '62.1%' } }
 ];
 
 // Fish Species (MidEvil themed)
@@ -242,6 +247,7 @@ let isUnlimitedWallet = false; // Admin wallets get unlimited casts
 
 // Check if wallet can play (server-side check)
 async function checkWalletCooldown(wallet) {
+    if (IS_LOCAL) return { canPlay: true, unlimited: true };
     try {
         const response = await fetch(`/api/cooldown?wallet=${encodeURIComponent(wallet)}`);
         const data = await response.json();
@@ -254,6 +260,7 @@ async function checkWalletCooldown(wallet) {
 
 // Mark wallet as played (server-side)
 async function markWalletAsPlayed() {
+    if (IS_LOCAL) return { success: true };
     try {
         const response = await fetch('/api/cooldown', {
             method: 'POST',
@@ -311,12 +318,14 @@ async function loadWallet() {
     showLoading(true);
 
     try {
-        // Record the wallet
-        await fetch('/api/record-wallet', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ wallet })
-        });
+        // Record the wallet (skip on localhost)
+        if (!IS_LOCAL) {
+            await fetch('/api/record-wallet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ wallet })
+            });
+        }
 
         userWallet = wallet;
         showSelectScreen();
@@ -431,16 +440,62 @@ async function castLine() {
 
     elements.castBtn.disabled = true;
 
-    // Show splash
-    setTimeout(() => {
+    // Calculate cast arc: pole tip → water
+    let startLeftPct, startTopPct;
+    if (selectedFisherman.castFrom) {
+        // Use manually defined pole tip position
+        startLeftPct = parseFloat(selectedFisherman.castFrom.left);
+        startTopPct = parseFloat(selectedFisherman.castFrom.top);
+    } else {
+        // Fallback: estimate from fisherman rect
+        const container = document.querySelector('.game-container');
+        const containerRect = container.getBoundingClientRect();
+        const fishermanRect = elements.fisherman.getBoundingClientRect();
+        startLeftPct = ((fishermanRect.left + fishermanRect.width * 0.8 - containerRect.left) / containerRect.width * 100);
+        startTopPct = ((fishermanRect.top + fishermanRect.height * 0.1 - containerRect.top) / containerRect.height * 100);
+    }
+
+    // End: lure landing position
+    const endLeftPct = parseFloat(selectedFisherman.lure.left);
+    const endTopPct = parseFloat(selectedFisherman.lure.top);
+
+    // Build smooth parabolic arc keyframes
+    const arcHeight = 20; // how high (in %) above the straight line
+    const numFrames = 12;
+    const keyframes = [];
+    for (let i = 0; i <= numFrames; i++) {
+        const t = i / numFrames;
+        const left = startLeftPct + (endLeftPct - startLeftPct) * t;
+        const straightTop = startTopPct + (endTopPct - startTopPct) * t;
+        const arc = 4 * arcHeight * t * (1 - t); // parabola peaking at t=0.5
+        const rotation = t * 720; // 2 full spins during cast
+        keyframes.push({ left: left + '%', top: (straightTop - arc) + '%', transform: `translateX(-50%) rotate(${rotation}deg)` });
+    }
+
+    // Position bobber at pole tip and show it
+    elements.bobber.style.left = startLeftPct + '%';
+    elements.bobber.style.top = startTopPct + '%';
+    elements.bobber.classList.remove('bobbing', 'bite');
+    elements.bobber.classList.add('visible');
+
+    // Animate the cast arc
+    const castAnim = elements.bobber.animate(keyframes, {
+        duration: 1200,
+        easing: 'ease-out'
+    });
+
+    castAnim.onfinish = () => {
+        // Set final position
+        elements.bobber.style.left = selectedFisherman.lure.left;
+        elements.bobber.style.top = selectedFisherman.lure.top;
+
+        // Splash on landing
         elements.splash.classList.add('active');
         playSound('splash');
         setTimeout(() => elements.splash.classList.remove('active'), 500);
-    }, 400);
 
-    // Show bobber after cast
-    setTimeout(() => {
-        elements.bobber.classList.add('visible', 'bobbing');
+        // Start bobbing
+        elements.bobber.classList.add('bobbing');
         gameState = 'waiting';
         updateStatus('Waiting for a bite...');
 
@@ -451,7 +506,7 @@ async function castLine() {
                 triggerBite();
             }
         }, waitTime);
-    }, 500);
+    };
 }
 
 function triggerBite() {
@@ -466,7 +521,13 @@ function triggerBite() {
     // Auto-fail if not reeled in within 3 seconds
     setTimeout(() => {
         if (gameState === 'bite') {
-            fishGotAway();
+            // Sink the bobber before showing escape
+            elements.bobber.classList.remove('bite');
+            const sinkAnim = elements.bobber.animate([
+                { transform: 'translateX(-50%) translateY(0)', opacity: 0.8 },
+                { transform: 'translateX(-50%) translateY(40px)', opacity: 0 }
+            ], { duration: 600, easing: 'ease-in' });
+            sinkAnim.onfinish = () => fishGotAway();
         }
     }, 3000);
 }
@@ -476,22 +537,53 @@ function reelIn() {
 
     gameState = 'reeling';
     elements.reelBtn.disabled = true;
-    elements.bobber.classList.remove('bite');
+    elements.bobber.classList.remove('bite', 'bobbing');
     playSound('reel');
 
     updateStatus('Reeling in...');
 
-    // Reel animation
-    elements.bobber.classList.remove('visible');
+    // Reel-in animation: drag lure through water to shoreline
+    const startLeftPct = parseFloat(selectedFisherman.lure.left);
+    const startTopPct = parseFloat(selectedFisherman.lure.top);
 
-    setTimeout(() => {
+    // End point: stop at the water's edge (65% of the way from lure toward castFrom)
+    let shoreLeftPct, shoreTopPct;
+    if (selectedFisherman.castFrom) {
+        const castLeftPct = parseFloat(selectedFisherman.castFrom.left);
+        shoreLeftPct = startLeftPct + (castLeftPct - startLeftPct) * 0.65;
+        shoreTopPct = startTopPct;
+    } else {
+        const fishLeftPct = parseFloat(selectedFisherman.pos.left) + parseFloat(selectedFisherman.pos.width);
+        shoreLeftPct = startLeftPct + (fishLeftPct - startLeftPct) * 0.65;
+        shoreTopPct = startTopPct;
+    }
+
+    const numFrames = 10;
+    const reelKeyframes = [];
+    for (let i = 0; i <= numFrames; i++) {
+        const t = i / numFrames;
+        const left = startLeftPct + (shoreLeftPct - startLeftPct) * t;
+        const top = startTopPct + (shoreTopPct - startTopPct) * t;
+        reelKeyframes.push({ left: left + '%', top: top + '%', transform: 'translateX(-50%)', opacity: 1 - t * 0.7 });
+    }
+
+    const reelAnim = elements.bobber.animate(reelKeyframes, {
+        duration: 800,
+        easing: 'ease-in'
+    });
+
+    reelAnim.onfinish = () => {
+        elements.bobber.classList.remove('visible');
+        elements.bobber.style.left = selectedFisherman.lure.left;
+        elements.bobber.style.top = selectedFisherman.lure.top;
+
         // 90% chance to catch, 10% chance fish escapes
         if (Math.random() < 0.90) {
             catchFish();
         } else {
             fishGotAway();
         }
-    }, 500);
+    };
 }
 
 function fishGotAway() {
@@ -517,6 +609,7 @@ function displayEscape() {
         </div>
     `;
     elements.catchDisplay.style.display = 'flex';
+    elements.fisherman.style.display = 'none';
     elements.catchDisplay.querySelector('h3').textContent = 'Oh no!';
 }
 
@@ -528,29 +621,29 @@ async function catchFish() {
 
     // Run API calls in parallel for faster response
     let foundEssence = false;
-    try {
-        const [, essenceResponse] = await Promise.all([
-            // Record catch to leaderboard
-            fetch('/api/leaderboard', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ wallet: userWallet, fish })
-            }),
-            // Roll for Primordial Essence
-            fetch('/api/primordial-essence', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ wallet: userWallet })
-            })
-        ]);
+    if (!IS_LOCAL) {
+        try {
+            const [, essenceResponse] = await Promise.all([
+                fetch('/api/leaderboard', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wallet: userWallet, fish })
+                }),
+                fetch('/api/primordial-essence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wallet: userWallet })
+                })
+            ]);
 
-        const essenceData = await essenceResponse.json();
-        if (essenceData.found) {
-            foundEssence = true;
-            playSound('essence');
+            const essenceData = await essenceResponse.json();
+            if (essenceData.found) {
+                foundEssence = true;
+                playSound('essence');
+            }
+        } catch (error) {
+            console.error('API error:', error);
         }
-    } catch (error) {
-        console.error('API error:', error);
     }
 
     displayCatch(fish, foundEssence);
@@ -663,10 +756,12 @@ function displayCatch(fish, foundEssence = false) {
     `;
 
     elements.catchDisplay.style.display = 'flex';
+    elements.fisherman.style.display = 'none';
 }
 
 function closeCatchDisplay() {
     elements.catchDisplay.style.display = 'none';
+    elements.fisherman.style.display = 'flex';
     // Reset the header text
     elements.catchDisplay.querySelector('h3').textContent = 'You caught a fish!';
     if (isUnlimitedWallet) {
@@ -716,6 +811,10 @@ function capitalize(str) {
 // ============================================
 async function checkDiscordStatus() {
     if (!userWallet || !elements.discordStatus) return;
+    if (IS_LOCAL) {
+        elements.discordStatus.textContent = 'Local mode';
+        return;
+    }
 
     try {
         const response = await fetch(`/api/discord-status?wallet=${encodeURIComponent(userWallet)}`);
@@ -892,6 +991,46 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
         }, { passive: false });
         document.addEventListener('touchend', () => { lureDragging = false; });
 
+        // Create draggable castFrom lure (pole tip / cast start point)
+        if (f.castFrom) {
+            const castDiv = document.createElement('div');
+            castDiv.id = `pos-castfrom-${i}`;
+            castDiv.style.cssText = `position:absolute; left:${f.castFrom.left}; top:${f.castFrom.top}; transform:translateX(-50%); cursor:grab; z-index:${70 + i};`;
+            castDiv.innerHTML = `
+                <img src="Lure.png" style="width:30px; height:auto; filter:hue-rotate(90deg) brightness(1.5);">
+                <div style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:rgba(0,80,0,0.9); color:#0f0; padding:2px 6px; border-radius:4px; font-size:0.6rem; text-align:center; white-space:nowrap;">${f.name} cast</div>
+                <div class="cast-pos-label" style="position:absolute; top:calc(100% + 20px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); color:#0f0; padding:2px 6px; border-radius:3px; font-family:monospace; font-size:0.6rem; text-align:center; white-space:nowrap;"></div>
+            `;
+            container.appendChild(castDiv);
+
+            const updateCastLabel = () => {
+                const rect = container.getBoundingClientRect();
+                const cr = castDiv.getBoundingClientRect();
+                const lPct = ((cr.left - rect.left) / rect.width * 100).toFixed(1);
+                const tPct = ((cr.top - rect.top) / rect.height * 100).toFixed(1);
+                castDiv.querySelector('.cast-pos-label').textContent = `left:${lPct}% top:${tPct}%`;
+            };
+            updateCastLabel();
+
+            let castDragging = false, castStartX, castStartY, castStartLeft, castStartTop;
+            castDiv.addEventListener('mousedown', (e) => {
+                castDragging = true;
+                castDiv.style.cursor = 'grabbing';
+                castStartX = e.clientX; castStartY = e.clientY;
+                castStartLeft = castDiv.offsetLeft; castStartTop = castDiv.offsetTop;
+                e.preventDefault();
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!castDragging) return;
+                castDiv.style.left = (castStartLeft + e.clientX - castStartX) + 'px';
+                castDiv.style.top = (castStartTop + e.clientY - castStartY) + 'px';
+                updateCastLabel();
+            });
+            document.addEventListener('mouseup', () => {
+                if (castDragging) { castDragging = false; castDiv.style.cursor = 'grab'; }
+            });
+        }
+
         // Touch support for fisherman
         div.addEventListener('touchstart', (e) => {
             dragging = true;
@@ -940,4 +1079,75 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
         btnBar.appendChild(btn);
     });
     document.body.appendChild(btnBar);
+
+    // Per-fisherman lure-only copy buttons
+    const lureBtnBar = document.createElement('div');
+    lureBtnBar.style.cssText = 'position:fixed; top:50px; left:50%; transform:translateX(-50%); z-index:999; display:flex; gap:8px;';
+    FISHERMEN.forEach((f, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = `Copy ${f.name} Lure`;
+        btn.style.cssText = 'padding:8px 12px; background:#0ff; color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:0.75rem;';
+        btn.addEventListener('click', () => {
+            const rect = container.getBoundingClientRect();
+            const lureDiv = document.getElementById(`pos-lure-${i}`);
+            const lr = lureDiv.getBoundingClientRect();
+            const lureLPct = ((lr.left - rect.left) / rect.width * 100).toFixed(1);
+            const lureTPct = ((lr.top - rect.top) / rect.height * 100).toFixed(1);
+            const text = `${f.name} lure:${lureLPct}%,${lureTPct}%`;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = `Copy ${f.name} Lure`, 2000);
+            });
+        });
+        lureBtnBar.appendChild(btn);
+    });
+    document.body.appendChild(lureBtnBar);
+
+    // Per-fisherman castFrom copy buttons
+    const castBtnBar = document.createElement('div');
+    castBtnBar.style.cssText = 'position:fixed; top:85px; left:50%; transform:translateX(-50%); z-index:999; display:flex; gap:8px;';
+    FISHERMEN.forEach((f, i) => {
+        if (!f.castFrom) return;
+        const btn = document.createElement('button');
+        btn.textContent = `Copy ${f.name} Cast`;
+        btn.style.cssText = 'padding:8px 12px; background:#0f0; color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:0.75rem;';
+        btn.addEventListener('click', () => {
+            const rect = container.getBoundingClientRect();
+            const castDiv = document.getElementById(`pos-castfrom-${i}`);
+            const cr = castDiv.getBoundingClientRect();
+            const castLPct = ((cr.left - rect.left) / rect.width * 100).toFixed(1);
+            const castTPct = ((cr.top - rect.top) / rect.height * 100).toFixed(1);
+            const text = `${f.name} cast:${castLPct}%,${castTPct}%`;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = `Copy ${f.name} Cast`, 2000);
+            });
+        });
+        castBtnBar.appendChild(btn);
+    });
+    document.body.appendChild(castBtnBar);
+
+    // Mouse coordinate tracker — click to copy left%,top%
+    const coordLabel = document.createElement('div');
+    coordLabel.style.cssText = 'position:fixed; bottom:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); color:#0f0; padding:8px 16px; border-radius:6px; font-family:monospace; font-size:0.9rem; z-index:999; pointer-events:none;';
+    coordLabel.textContent = 'Move mouse over map';
+    document.body.appendChild(coordLabel);
+
+    container.addEventListener('mousemove', (e) => {
+        const rect = container.getBoundingClientRect();
+        const leftPct = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+        const topPct = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+        coordLabel.textContent = `left: ${leftPct}%  top: ${topPct}%  (click to copy)`;
+    });
+
+    container.addEventListener('click', (e) => {
+        const rect = container.getBoundingClientRect();
+        const leftPct = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+        const topPct = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
+        const text = `${leftPct}%,${topPct}%`;
+        navigator.clipboard.writeText(text).then(() => {
+            coordLabel.textContent = `Copied: ${text}`;
+            setTimeout(() => coordLabel.textContent = 'Move mouse over map', 1500);
+        });
+    });
 }

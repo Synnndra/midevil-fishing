@@ -54,27 +54,8 @@ body {
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.25);
     pointer-events: none;
-}
-
-/* Test Mode Banner */
-.test-mode-banner {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: rgba(255, 68, 68, 0.7);
-    color: white;
-    text-align: center;
-    padding: 8px;
-    font-family: 'MedievalSharp', cursive;
-    font-size: 0.9rem;
-    font-weight: 600;
-    z-index: 1000;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    backdrop-filter: blur(4px);
 }
 
 /* Title */
@@ -90,32 +71,9 @@ body {
     z-index: 10;
 }
 
-/* Learn More Box */
-.learn-more-box {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(22, 33, 62, 0.9);
-    border: 2px solid var(--gold);
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-family: 'MedievalSharp', cursive;
-    font-size: 0.95rem;
-    color: var(--gold);
-    text-decoration: none;
-    z-index: 10;
-    transition: all 0.3s;
-}
-
-.learn-more-box:hover {
-    background: rgba(22, 33, 62, 1);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-}
-
 /* Mute Button */
 .mute-btn {
-    position: fixed;
+    position: absolute;
     bottom: 20px;
     right: 20px;
     width: 44px;
@@ -374,24 +332,7 @@ body {
     width: 100%;
     height: auto;
     object-fit: contain;
-    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.7));
-}
-
-/* Fishing Area */
-.fishing-area {
-    position: absolute;
-    left: 35%;
-    top: 45%;
-    width: 300px;
-    height: 300px;
-    border-radius: 50%;
-    overflow: visible;
-    z-index: 5;
-}
-
-/* Fishing Line - hidden, lure position per-fisherman handles cast visuals */
-.fishing-line {
-    display: none;
+    filter: brightness(1.2) drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.7));
 }
 
 /* Bobber/Lure */
@@ -406,6 +347,7 @@ body {
     transition: opacity 0.3s;
     z-index: 15;
     will-change: transform, opacity;
+    pointer-events: none;
 }
 
 .bobber.visible {
@@ -414,10 +356,14 @@ body {
 
 .bobber.bobbing {
     animation: bob 0.5s ease-in-out infinite;
+    filter: brightness(0.7) saturate(0.6) sepia(0.3) hue-rotate(170deg);
+    opacity: 0.8;
 }
 
 .bobber.bite {
     animation: bite 0.15s ease-in-out infinite;
+    filter: brightness(0.7) saturate(0.6) sepia(0.3) hue-rotate(170deg);
+    opacity: 0.8;
 }
 
 @keyframes bob {
@@ -433,26 +379,52 @@ body {
 /* Splash Effect */
 .splash {
     position: absolute;
-    width: 3.1%;
+    width: 6%;
     height: auto;
     aspect-ratio: 1;
     left: 50%;
     top: 50%;
     transform: translateX(-50%) translateZ(0);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(150,200,255,0.3) 40%, transparent 70%);
     opacity: 0;
     z-index: 14;
     will-change: transform, opacity;
+    pointer-events: none;
 }
 
 .splash.active {
-    animation: splash 0.5s ease-out;
+    animation: splash 0.8s ease-out;
+}
+
+/* Water ripple rings */
+.splash::before,
+.splash::after {
+    content: '';
+    position: absolute;
+    inset: -20%;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    opacity: 0;
+}
+
+.splash.active::before {
+    animation: ripple 0.8s ease-out 0.1s;
+}
+
+.splash.active::after {
+    animation: ripple 0.8s ease-out 0.3s;
 }
 
 @keyframes splash {
-    0% { transform: translateX(-50%) scale(0.5); opacity: 1; }
-    100% { transform: translateX(-50%) scale(2); opacity: 0; }
+    0% { transform: translateX(-50%) scale(0.3); opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { transform: translateX(-50%) scale(2.5); opacity: 0; }
+}
+
+@keyframes ripple {
+    0% { transform: scale(0.5); opacity: 0.6; }
+    100% { transform: scale(3); opacity: 0; }
 }
 
 /* Game Controls */
@@ -903,13 +875,6 @@ body {
         top: 10px;
     }
 
-    .learn-more-box {
-        font-size: 0.8rem;
-        padding: 8px 12px;
-        top: 10px;
-        right: 10px;
-    }
-
     .catch-log {
         width: 160px;
         font-size: 0.75rem;
@@ -980,13 +945,6 @@ body {
         top: 8px;
         width: 60%;
         text-align: center;
-    }
-
-    .learn-more-box {
-        font-size: 0.7rem;
-        padding: 6px 10px;
-        top: 8px;
-        right: 8px;
     }
 
     .catch-log {
@@ -1122,13 +1080,6 @@ body {
     .game-title {
         font-size: 1rem;
         top: 4px;
-    }
-
-    .learn-more-box {
-        font-size: 0.6rem;
-        padding: 4px 8px;
-        top: 4px;
-        right: 4px;
     }
 
     .mute-btn {
