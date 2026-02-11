@@ -765,3 +765,109 @@ if (elements.linkDiscordBtn) {
 
 // Check for Discord callback on page load
 handleDiscordCallback();
+
+// ============================================
+// POSITION MODE (dev tool: ?position=true)
+// ============================================
+if (new URLSearchParams(window.location.search).get('position') === 'true') {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+
+    // Show game container with map
+    const container = document.querySelector('.game-container');
+
+    // Create all fishermen as draggable
+    FISHERMEN.forEach((f, i) => {
+        const div = document.createElement('div');
+        div.className = 'fisherman';
+        div.id = `pos-fisherman-${i}`;
+        div.style.position = 'absolute';
+        div.style.left = f.pos.left;
+        div.style.bottom = f.pos.bottom;
+        div.style.cursor = 'grab';
+        div.style.zIndex = 50 + i;
+        div.innerHTML = `
+            <img src="${f.image}" style="width:${f.pos.width}; height:auto; object-fit:contain; filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.7));">
+            <div style="background:rgba(0,0,0,0.8); color:#ffd700; padding:4px 8px; border-radius:4px; font-size:0.75rem; text-align:center; margin-top:4px;">${f.name}</div>
+            <div class="pos-label" style="background:rgba(0,0,0,0.9); color:#0f0; padding:2px 6px; border-radius:3px; font-family:monospace; font-size:0.65rem; text-align:center;"></div>
+        `;
+        container.appendChild(div);
+
+        // Drag logic
+        let dragging = false, startX, startY, startLeft, startBottom;
+        const updateLabel = () => {
+            const rect = container.getBoundingClientRect();
+            const divRect = div.getBoundingClientRect();
+            const leftPct = ((divRect.left - rect.left) / rect.width * 100).toFixed(1);
+            const bottomPct = ((rect.bottom - divRect.bottom) / rect.height * 100).toFixed(1);
+            div.querySelector('.pos-label').textContent = `left:${leftPct}% bottom:${bottomPct}%`;
+        };
+        updateLabel();
+
+        div.addEventListener('mousedown', (e) => {
+            dragging = true;
+            div.style.cursor = 'grabbing';
+            startX = e.clientX;
+            startY = e.clientY;
+            startLeft = div.offsetLeft;
+            startBottom = parseInt(getComputedStyle(div).bottom);
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!dragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            div.style.left = (startLeft + dx) + 'px';
+            div.style.bottom = (startBottom - dy) + 'px';
+            updateLabel();
+        });
+        document.addEventListener('mouseup', () => {
+            if (dragging) {
+                dragging = false;
+                div.style.cursor = 'grab';
+            }
+        });
+
+        // Touch support
+        div.addEventListener('touchstart', (e) => {
+            dragging = true;
+            const t = e.touches[0];
+            startX = t.clientX;
+            startY = t.clientY;
+            startLeft = div.offsetLeft;
+            startBottom = parseInt(getComputedStyle(div).bottom);
+            e.preventDefault();
+        }, { passive: false });
+        document.addEventListener('touchmove', (e) => {
+            if (!dragging) return;
+            const t = e.touches[0];
+            const dx = t.clientX - startX;
+            const dy = t.clientY - startY;
+            div.style.left = (startLeft + dx) + 'px';
+            div.style.bottom = (startBottom - dy) + 'px';
+            updateLabel();
+        }, { passive: false });
+        document.addEventListener('touchend', () => { dragging = false; });
+    });
+
+    // Copy button
+    const copyBtn = document.createElement('button');
+    copyBtn.textContent = 'Copy Positions';
+    copyBtn.style.cssText = 'position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:999; padding:12px 24px; background:#ffd700; color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:1rem;';
+    copyBtn.addEventListener('click', () => {
+        const rect = container.getBoundingClientRect();
+        const positions = FISHERMEN.map((f, i) => {
+            const div = document.getElementById(`pos-fisherman-${i}`);
+            const divRect = div.getBoundingClientRect();
+            const leftPct = ((divRect.left - rect.left) / rect.width * 100).toFixed(1);
+            const bottomPct = ((rect.bottom - divRect.bottom) / rect.height * 100).toFixed(1);
+            return `${f.name}: left:'${leftPct}%', bottom:'${bottomPct}%'`;
+        });
+        const text = positions.join('\n');
+        navigator.clipboard.writeText(text).then(() => {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => copyBtn.textContent = 'Copy Positions', 2000);
+        });
+    });
+    document.body.appendChild(copyBtn);
+}
