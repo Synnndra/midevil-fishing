@@ -932,9 +932,9 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
             const lr = lureDiv.getBoundingClientRect();
             const lureLPct = (lr.left / vw * 100).toFixed(1);
             const lureTPct = (lr.top / vh * 100).toFixed(1);
-            return `[${i+1}] ${f.name}: pos left:'${leftPct}%' bottom:'${bottomPct}%' | lure left:'${lureLPct}%' top:'${lureTPct}%'`;
+            return `[${f.name} pos:${leftPct}%,${bottomPct}% lure:${lureLPct}%,${lureTPct}%]`;
         });
-        const text = positions.join('\n---\n');
+        const text = positions.join(' ');
         navigator.clipboard.writeText(text).then(() => {
             copyBtn.textContent = 'Copied!';
             setTimeout(() => copyBtn.textContent = 'Copy Positions', 2000);
