@@ -385,22 +385,9 @@ body {
     z-index: 5;
 }
 
-/* Fishing Line */
+/* Fishing Line - hidden, lure position per-fisherman handles cast visuals */
 .fishing-line {
-    position: absolute;
-    width: 2px;
-    background: linear-gradient(to bottom right, #8b4513, #654321);
-    left: -50px;
-    top: 50%;
-    height: 0;
-    transform-origin: top left;
-    transform: rotate(25deg);
-    transition: height 0.5s ease-out;
-    z-index: 6;
-}
-
-.fishing-line.cast {
-    height: 180px;
+    display: none;
 }
 
 /* Bobber/Lure */
