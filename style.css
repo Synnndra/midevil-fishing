@@ -1117,6 +1117,244 @@ body {
     }
 }
 
+/* Landscape mobile - limited height (phones in landscape) */
+@media (max-height: 500px) and (orientation: landscape) {
+    .game-title {
+        font-size: 1rem;
+        top: 4px;
+    }
+
+    .learn-more-box {
+        font-size: 0.6rem;
+        padding: 4px 8px;
+        top: 4px;
+        right: 4px;
+    }
+
+    .mute-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+        bottom: 4px;
+        right: 4px;
+    }
+
+    /* Connect & Select screens */
+    .screen {
+        padding: 8px;
+    }
+
+    .connect-box, .select-box {
+        padding: 12px 16px;
+        max-width: 400px;
+    }
+
+    .connect-box h2, .select-box h2 {
+        font-size: 1rem;
+        margin-bottom: 4px;
+    }
+
+    .connect-box p, .select-box p {
+        font-size: 0.75rem;
+        margin-bottom: 8px;
+    }
+
+    .wallet-input {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+
+    .btn-primary {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+
+    .nft-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        max-height: 200px;
+        margin-top: 8px;
+        padding: 4px;
+    }
+
+    .nft-card {
+        padding: 4px;
+    }
+
+    .nft-card .nft-name {
+        font-size: 0.55rem;
+        margin-top: 2px;
+    }
+
+    .cooldown-badge {
+        font-size: 0.55rem;
+        padding: 3px 6px;
+    }
+
+    /* Game screen */
+    #gameScreen {
+        padding-top: 30px;
+    }
+
+    .game-controls {
+        bottom: 8px;
+        left: 70%;
+        flex-direction: row;
+        gap: 8px;
+    }
+
+    .btn-cast, .btn-reel {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+    }
+
+    .game-status {
+        bottom: 56px;
+        left: 70%;
+        font-size: 0.75rem;
+        padding: 6px 12px;
+    }
+
+    .catch-log {
+        top: 30px;
+        left: 4px;
+        width: 130px;
+        padding: 6px;
+        max-height: 180px;
+        font-size: 0.65rem;
+    }
+
+    .catch-log h3 {
+        font-size: 0.75rem;
+        margin-bottom: 4px;
+    }
+
+    .catch-list {
+        max-height: 140px;
+        gap: 4px;
+    }
+
+    .catch-item {
+        padding: 4px;
+        font-size: 0.7rem;
+        gap: 6px;
+    }
+
+    .catch-item .fish-icon-img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .leaderboard-link {
+        top: 30px;
+        right: 4px;
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
+
+    .discord-link-box {
+        top: 66px;
+        right: 4px;
+        padding: 4px 8px;
+        font-size: 0.65rem;
+    }
+
+    .btn-discord {
+        padding: 4px 8px;
+        font-size: 0.65rem;
+    }
+
+    .btn-change {
+        bottom: 4px;
+        left: 4px;
+        font-size: 0.6rem;
+        padding: 4px 8px;
+    }
+
+    /* Catch display modal */
+    .catch-display {
+        align-items: flex-start;
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    .catch-content {
+        padding: 12px;
+        max-width: 350px;
+        margin: auto;
+    }
+
+    .catch-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    .caught-fish .fish-image img {
+        max-width: 80px;
+        max-height: 80px;
+    }
+
+    .caught-fish .fish-fallback {
+        font-size: 50px;
+    }
+
+    .caught-fish .fish-name {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    .caught-fish .trait {
+        padding: 3px 6px;
+        font-size: 0.65rem;
+    }
+
+    .fish-score {
+        font-size: 1rem;
+        margin-top: 6px;
+    }
+
+    .btn-secondary {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+
+    .essence-found {
+        padding: 8px 12px;
+        margin-bottom: 10px;
+    }
+
+    .essence-img {
+        max-width: 50px;
+        max-height: 50px;
+    }
+
+    .essence-text {
+        font-size: 0.9rem;
+    }
+
+    .essence-subtext {
+        font-size: 0.7rem;
+    }
+
+    .escape-emoji {
+        font-size: 50px;
+        margin-bottom: 8px;
+    }
+
+    .escape-text {
+        font-size: 1rem;
+    }
+
+    .escape-subtext {
+        font-size: 0.8rem;
+    }
+
+    .error-msg {
+        font-size: 0.75rem;
+    }
+}
+
 /* Rotate Device Prompt - shown on portrait mobile only */
 .rotate-prompt {
     display: none;
