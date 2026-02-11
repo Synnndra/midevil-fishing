@@ -205,7 +205,7 @@ const elements = {
     // Game
     fisherman: document.getElementById('fisherman'),
     fishermanImg: document.getElementById('fishermanImg'),
-    fishingLine: document.getElementById('fishingLine'),
+    fishingLine: null,
     bobber: document.getElementById('bobber'),
     splash: document.getElementById('splash'),
     castBtn: document.getElementById('castBtn'),
@@ -430,7 +430,6 @@ async function castLine() {
     playSound('cast');
 
     elements.castBtn.disabled = true;
-    elements.fishingLine.classList.add('cast');
 
     // Show splash
     setTimeout(() => {
@@ -483,7 +482,6 @@ function reelIn() {
     updateStatus('Reeling in...');
 
     // Reel animation
-    elements.fishingLine.classList.remove('cast');
     elements.bobber.classList.remove('visible');
 
     setTimeout(() => {
@@ -502,7 +500,6 @@ function fishGotAway() {
     playSound('escape');
 
     elements.bobber.classList.remove('bite', 'bobbing', 'visible');
-    elements.fishingLine.classList.remove('cast');
     elements.reelBtn.disabled = true;
     elements.castBtn.disabled = !isUnlimitedWallet;
 
