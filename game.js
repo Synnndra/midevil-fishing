@@ -205,7 +205,6 @@ const elements = {
     // Game
     fisherman: document.getElementById('fisherman'),
     fishermanImg: document.getElementById('fishermanImg'),
-    fishermanName: document.getElementById('fishermanName'),
     fishingLine: document.getElementById('fishingLine'),
     bobber: document.getElementById('bobber'),
     splash: document.getElementById('splash'),
@@ -370,7 +369,6 @@ async function selectFisherman(index) {
     selectedFisherman = FISHERMEN[index];
 
     elements.fishermanImg.src = selectedFisherman.image;
-    elements.fishermanName.textContent = selectedFisherman.name;
 
     elements.selectScreen.style.display = 'none';
     elements.gameScreen.style.display = 'flex';
