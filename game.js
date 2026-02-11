@@ -655,7 +655,8 @@ function updateCatchLog() {
     const fish = catches[0];
     const newItem = `
         <div class="catch-item">
-            <span class="fish-icon">${fish.fallback}</span>
+            <img class="fish-icon-img" src="${fish.image}" alt="${fish.species}" width="40" height="40" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+            <span class="fish-icon" style="display:none;">${fish.fallback}</span>
             <div class="fish-info">
                 <div class="name" style="color: ${RARITY_COLORS[fish.rarity]}">${fish.species}</div>
                 <div class="rarity">${capitalize(fish.rarity)} - ${fish.weight}</div>
