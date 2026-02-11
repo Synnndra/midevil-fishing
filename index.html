@@ -51,19 +51,17 @@
             </div>
         </div>
 
-        <!-- Fisherman Display (outside gameScreen for correct positioning) -->
+        <!-- Fisherman Display (direct child for correct positioning) -->
         <div id="fisherman" class="fisherman" style="display: none;">
             <img id="fishermanImg" src="" alt="Your MidEvil">
         </div>
 
+        <!-- Bobber and Splash (direct children for container-relative positioning) -->
+        <img id="bobber" class="bobber" src="Lure.png" alt="Lure" width="40" height="60">
+        <div id="splash" class="splash"></div>
+
         <!-- Game Screen -->
         <div id="gameScreen" class="screen" style="display: none;">
-            <!-- Fishing Area (The Pit) -->
-            <div id="fishingArea" class="fishing-area">
-                <div id="fishingLine" class="fishing-line"></div>
-                <img id="bobber" class="bobber" src="Lure.png" alt="Lure" width="40" height="60">
-                <div id="splash" class="splash"></div>
-            </div>
 
             <!-- Game Controls -->
             <div class="game-controls">

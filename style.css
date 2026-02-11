@@ -31,19 +31,23 @@ button, a, .nft-card {
 
 body {
     font-family: 'MedievalSharp', cursive;
-    background: var(--bg-dark);
+    background: #000;
     color: var(--text-primary);
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Game Container */
+/* Game Container - locked 16:9 aspect ratio */
 .game-container {
-    width: 100%;
-    min-height: 100vh;
+    width: min(100vw, calc(100vh * 16 / 9));
+    aspect-ratio: 16 / 9;
     background: url('Map.jpg') no-repeat center center;
     background-size: cover;
     position: relative;
+    overflow: hidden;
 }
 
 .game-container::before {
@@ -136,9 +140,9 @@ body {
 
 /* Screens */
 .screen {
-    position: relative;
+    position: absolute;
+    inset: 0;
     z-index: 5;
-    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -392,11 +396,11 @@ body {
 
 /* Bobber/Lure */
 .bobber {
-    position: fixed;
+    position: absolute;
     width: 40px;
     height: auto;
-    left: 58.7%;
-    top: 53.5%;
+    left: 50%;
+    top: 50%;
     transform: translateX(-50%) translateZ(0);
     opacity: 0;
     transition: opacity 0.3s;
@@ -428,11 +432,11 @@ body {
 
 /* Splash Effect */
 .splash {
-    position: fixed;
+    position: absolute;
     width: 60px;
     height: 60px;
-    left: 58.7%;
-    top: 53.5%;
+    left: 50%;
+    top: 50%;
     transform: translateX(-50%) translateZ(0);
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
@@ -891,7 +895,7 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Responsive - Tablet */
+/* Responsive - small containers (scales with 16:9 lock) */
 @media (max-width: 768px) {
     .game-title {
         font-size: 1.6rem;
@@ -903,32 +907,6 @@ body {
         padding: 8px 12px;
         top: 10px;
         right: 10px;
-    }
-
-    .fisherman {
-        left: 5%;
-        bottom: 20%;
-    }
-
-    .fisherman img {
-        width: 140px;
-    }
-
-    .fishing-area {
-        left: 25%;
-        top: 35%;
-        width: 150px;
-        height: 150px;
-    }
-
-    .bobber {
-        left: 50%;
-        top: 45%;
-    }
-
-    .splash {
-        left: 50%;
-        top: 45%;
     }
 
     .catch-log {
@@ -995,12 +973,10 @@ body {
     }
 }
 
-/* Responsive - Mobile */
 @media (max-width: 480px) {
     .game-title {
         font-size: 1.3rem;
         top: 8px;
-        left: 50%;
         width: 60%;
         text-align: center;
     }
@@ -1010,39 +986,6 @@ body {
         padding: 6px 10px;
         top: 8px;
         right: 8px;
-    }
-
-    .fisherman {
-        left: 2%;
-        bottom: 22%;
-    }
-
-    .fisherman img {
-        width: 100px;
-    }
-
-    .fishing-area {
-        left: 20%;
-        top: 30%;
-        width: 120px;
-        height: 120px;
-    }
-
-    .fishing-line.cast {
-        height: 120px;
-    }
-
-    .bobber {
-        left: 50%;
-        top: 40%;
-        width: 30px;
-    }
-
-    .splash {
-        left: 50%;
-        top: 40%;
-        width: 40px;
-        height: 40px;
     }
 
     .catch-log {
@@ -1094,14 +1037,6 @@ body {
         padding: 6px 10px;
     }
 
-    .mute-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1.1rem;
-        bottom: 10px;
-        right: 10px;
-    }
-
     .connect-box, .select-box {
         padding: 20px;
         margin: 10px;
@@ -1139,10 +1074,6 @@ body {
 
     .nft-card .nft-name {
         font-size: 0.65rem;
-    }
-
-    .catch-display {
-        padding: 15px;
     }
 
     .catch-content {

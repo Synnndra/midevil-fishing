@@ -839,23 +839,22 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
             }
         });
 
-        // Create draggable lure for this fisherman
+        // Create draggable lure for this fisherman (absolute within container)
         const lureDiv = document.createElement('div');
         lureDiv.id = `pos-lure-${i}`;
-        lureDiv.style.cssText = `position:fixed; left:${f.lure.left}; top:${f.lure.top}; transform:translateX(-50%); cursor:grab; z-index:${60 + i};`;
+        lureDiv.style.cssText = `position:absolute; left:${f.lure.left}; top:${f.lure.top}; transform:translateX(-50%); cursor:grab; z-index:${60 + i};`;
         lureDiv.innerHTML = `
             <img src="Lure.png" style="width:40px; height:auto;">
-            <div style="background:rgba(0,0,0,0.8); color:#ffd700; padding:2px 6px; border-radius:4px; font-size:0.6rem; text-align:center; white-space:nowrap;">${f.name} lure</div>
-            <div class="lure-pos-label" style="background:rgba(0,0,0,0.9); color:#0ff; padding:2px 6px; border-radius:3px; font-family:monospace; font-size:0.6rem; text-align:center;"></div>
+            <div style="position:absolute; top:100%; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.8); color:#ffd700; padding:2px 6px; border-radius:4px; font-size:0.6rem; text-align:center; white-space:nowrap;">${f.name} lure</div>
+            <div class="lure-pos-label" style="position:absolute; top:calc(100% + 20px); left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.9); color:#0ff; padding:2px 6px; border-radius:3px; font-family:monospace; font-size:0.6rem; text-align:center; white-space:nowrap;"></div>
         `;
-        document.body.appendChild(lureDiv);
+        container.appendChild(lureDiv);
 
         const updateLureLabel = () => {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
+            const rect = container.getBoundingClientRect();
             const lr = lureDiv.getBoundingClientRect();
-            const lPct = (lr.left / vw * 100).toFixed(1);
-            const tPct = (lr.top / vh * 100).toFixed(1);
+            const lPct = ((lr.left - rect.left) / rect.width * 100).toFixed(1);
+            const tPct = ((lr.top - rect.top) / rect.height * 100).toFixed(1);
             lureDiv.querySelector('.lure-pos-label').textContent = `left:${lPct}% top:${tPct}%`;
         };
         updateLureLabel();
@@ -926,16 +925,14 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
         btn.style.cssText = 'padding:10px 16px; background:#ffd700; color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:0.85rem;';
         btn.addEventListener('click', () => {
             const rect = container.getBoundingClientRect();
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
             const div = document.getElementById(`pos-fisherman-${i}`);
             const divRect = div.getBoundingClientRect();
             const leftPct = ((divRect.left - rect.left) / rect.width * 100).toFixed(1);
             const bottomPct = ((rect.bottom - divRect.bottom) / rect.height * 100).toFixed(1);
             const lureDiv = document.getElementById(`pos-lure-${i}`);
             const lr = lureDiv.getBoundingClientRect();
-            const lureLPct = (lr.left / vw * 100).toFixed(1);
-            const lureTPct = (lr.top / vh * 100).toFixed(1);
+            const lureLPct = ((lr.left - rect.left) / rect.width * 100).toFixed(1);
+            const lureTPct = ((lr.top - rect.top) / rect.height * 100).toFixed(1);
             const text = `${f.name} pos:${leftPct}%,${bottomPct}% lure:${lureLPct}%,${lureTPct}%`;
             navigator.clipboard.writeText(text).then(() => {
                 btn.textContent = 'Copied!';
