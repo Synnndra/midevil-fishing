@@ -1115,3 +1115,44 @@ body {
         font-size: 0.8rem;
     }
 }
+
+/* Rotate Device Prompt - shown on portrait mobile only */
+.rotate-prompt {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    color: var(--gold);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: 'MedievalSharp', cursive;
+    text-align: center;
+    padding: 40px;
+}
+
+.rotate-prompt .rotate-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    animation: rotate-hint 2s ease-in-out infinite;
+}
+
+.rotate-prompt p {
+    font-size: 1.3rem;
+    max-width: 280px;
+}
+
+@keyframes rotate-hint {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+    .rotate-prompt {
+        display: flex;
+    }
+    .game-container {
+        display: none;
+    }
+}
