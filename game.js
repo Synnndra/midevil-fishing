@@ -8,10 +8,10 @@
 
 // Fisherman options
 const FISHERMEN = [
-    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png' },
-    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png' },
-    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png' },
-    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png' }
+    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '20%', bottom: '18%', width: '180px' } },
+    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '22%', bottom: '16%', width: '190px' } },
+    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '20%', bottom: '18%', width: '180px' } },
+    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '21%', bottom: '15%', width: '200px' } }
 ];
 
 // Fish Species (MidEvil themed)
@@ -369,6 +369,14 @@ async function selectFisherman(index) {
     selectedFisherman = FISHERMEN[index];
 
     elements.fishermanImg.src = selectedFisherman.image;
+
+    // Apply per-fisherman positioning
+    const pos = selectedFisherman.pos;
+    if (pos) {
+        elements.fisherman.style.left = pos.left;
+        elements.fisherman.style.bottom = pos.bottom;
+        elements.fishermanImg.style.width = pos.width;
+    }
 
     elements.selectScreen.style.display = 'none';
     elements.gameScreen.style.display = 'flex';
