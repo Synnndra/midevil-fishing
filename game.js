@@ -8,10 +8,10 @@
 
 // Fisherman options
 const FISHERMEN = [
-    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '20%', bottom: '18%', width: '198px' } },
-    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '22%', bottom: '16%', width: '209px' } },
-    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '20%', bottom: '18%', width: '198px' } },
-    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '21%', bottom: '15%', width: '220px' } }
+    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '20%', bottom: '18%', width: '198px' }, lure: { left: '58.7%', top: '53.5%' } },
+    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '22%', bottom: '16%', width: '209px' }, lure: { left: '58.7%', top: '53.5%' } },
+    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '20%', bottom: '18%', width: '198px' }, lure: { left: '58.7%', top: '53.5%' } },
+    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '21%', bottom: '15%', width: '220px' }, lure: { left: '58.7%', top: '53.5%' } }
 ];
 
 // Fish Species (MidEvil themed)
@@ -376,6 +376,15 @@ async function selectFisherman(index) {
         elements.fisherman.style.left = pos.left;
         elements.fisherman.style.bottom = pos.bottom;
         elements.fishermanImg.style.width = pos.width;
+    }
+
+    // Apply per-fisherman lure position
+    const lure = selectedFisherman.lure;
+    if (lure) {
+        elements.bobber.style.left = lure.left;
+        elements.bobber.style.top = lure.top;
+        elements.splash.style.left = lure.left;
+        elements.splash.style.top = lure.top;
     }
 
     elements.selectScreen.style.display = 'none';
@@ -828,7 +837,63 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
             }
         });
 
-        // Touch support
+        // Create draggable lure for this fisherman
+        const lureDiv = document.createElement('div');
+        lureDiv.id = `pos-lure-${i}`;
+        lureDiv.style.cssText = `position:fixed; left:${f.lure.left}; top:${f.lure.top}; transform:translateX(-50%); cursor:grab; z-index:${60 + i};`;
+        lureDiv.innerHTML = `
+            <img src="Lure.png" style="width:40px; height:auto;">
+            <div style="background:rgba(0,0,0,0.8); color:#ffd700; padding:2px 6px; border-radius:4px; font-size:0.6rem; text-align:center; white-space:nowrap;">${f.name} lure</div>
+            <div class="lure-pos-label" style="background:rgba(0,0,0,0.9); color:#0ff; padding:2px 6px; border-radius:3px; font-family:monospace; font-size:0.6rem; text-align:center;"></div>
+        `;
+        document.body.appendChild(lureDiv);
+
+        const updateLureLabel = () => {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const lr = lureDiv.getBoundingClientRect();
+            const lPct = (lr.left / vw * 100).toFixed(1);
+            const tPct = (lr.top / vh * 100).toFixed(1);
+            lureDiv.querySelector('.lure-pos-label').textContent = `left:${lPct}% top:${tPct}%`;
+        };
+        updateLureLabel();
+
+        let lureDragging = false, lureStartX, lureStartY, lureStartLeft, lureStartTop;
+        lureDiv.addEventListener('mousedown', (e) => {
+            lureDragging = true;
+            lureDiv.style.cursor = 'grabbing';
+            lureStartX = e.clientX;
+            lureStartY = e.clientY;
+            lureStartLeft = lureDiv.offsetLeft;
+            lureStartTop = lureDiv.offsetTop;
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (!lureDragging) return;
+            lureDiv.style.left = (lureStartLeft + e.clientX - lureStartX) + 'px';
+            lureDiv.style.top = (lureStartTop + e.clientY - lureStartY) + 'px';
+            updateLureLabel();
+        });
+        document.addEventListener('mouseup', () => {
+            if (lureDragging) { lureDragging = false; lureDiv.style.cursor = 'grab'; }
+        });
+        lureDiv.addEventListener('touchstart', (e) => {
+            lureDragging = true;
+            const t = e.touches[0];
+            lureStartX = t.clientX; lureStartY = t.clientY;
+            lureStartLeft = lureDiv.offsetLeft; lureStartTop = lureDiv.offsetTop;
+            e.preventDefault();
+        }, { passive: false });
+        document.addEventListener('touchmove', (e) => {
+            if (!lureDragging) return;
+            const t = e.touches[0];
+            lureDiv.style.left = (lureStartLeft + t.clientX - lureStartX) + 'px';
+            lureDiv.style.top = (lureStartTop + t.clientY - lureStartY) + 'px';
+            updateLureLabel();
+        }, { passive: false });
+        document.addEventListener('touchend', () => { lureDragging = false; });
+
+        // Touch support for fisherman
         div.addEventListener('touchstart', (e) => {
             dragging = true;
             const t = e.touches[0];
@@ -856,12 +921,18 @@ if (new URLSearchParams(window.location.search).get('position') === 'true') {
     copyBtn.style.cssText = 'position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:999; padding:12px 24px; background:#ffd700; color:#000; font-weight:bold; border:none; border-radius:8px; cursor:pointer; font-size:1rem;';
     copyBtn.addEventListener('click', () => {
         const rect = container.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
         const positions = FISHERMEN.map((f, i) => {
             const div = document.getElementById(`pos-fisherman-${i}`);
             const divRect = div.getBoundingClientRect();
             const leftPct = ((divRect.left - rect.left) / rect.width * 100).toFixed(1);
             const bottomPct = ((rect.bottom - divRect.bottom) / rect.height * 100).toFixed(1);
-            return `${f.name}: left:'${leftPct}%', bottom:'${bottomPct}%'`;
+            const lureDiv = document.getElementById(`pos-lure-${i}`);
+            const lr = lureDiv.getBoundingClientRect();
+            const lureLPct = (lr.left / vw * 100).toFixed(1);
+            const lureTPct = (lr.top / vh * 100).toFixed(1);
+            return `${f.name}: pos left:'${leftPct}%' bottom:'${bottomPct}%' | lure left:'${lureLPct}%' top:'${lureTPct}%'`;
         });
         const text = positions.join('\n');
         navigator.clipboard.writeText(text).then(() => {
