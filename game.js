@@ -8,10 +8,10 @@
 
 // Fisherman options
 const FISHERMEN = [
-    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '20%', bottom: '18%', width: '180px' } },
-    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '22%', bottom: '16%', width: '190px' } },
-    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '20%', bottom: '18%', width: '180px' } },
-    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '21%', bottom: '15%', width: '200px' } }
+    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png', pos: { left: '20%', bottom: '18%', width: '198px' } },
+    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png', pos: { left: '22%', bottom: '16%', width: '209px' } },
+    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png', pos: { left: '20%', bottom: '18%', width: '198px' } },
+    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png', pos: { left: '21%', bottom: '15%', width: '220px' } }
 ];
 
 // Fish Species (MidEvil themed)
