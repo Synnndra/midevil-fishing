@@ -8,9 +8,10 @@
 
 // Fisherman options
 const FISHERMEN = [
-    { id: 'wolf', name: 'Wolf', image: 'fisherman1.jpg' },
-    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.jpg' },
-    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.jpg' }
+    { id: 'wolf', name: 'Wolf', image: 'fisherman1.png' },
+    { id: 'golden-pirate', name: 'Golden Pirate', image: 'fisherman2.png' },
+    { id: 'majestic-beard', name: 'Majestic Beard', image: 'fisherman3.png' },
+    { id: 'orc-fisherman', name: 'Orc Fisherman', image: 'fisherman4.png' }
 ];
 
 // Fish Species (MidEvil themed)
