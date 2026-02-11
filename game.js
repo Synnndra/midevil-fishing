@@ -389,6 +389,7 @@ async function selectFisherman(index) {
 
     elements.selectScreen.style.display = 'none';
     elements.gameScreen.style.display = 'flex';
+    elements.fisherman.style.display = 'flex';
 
     gameState = 'idle';
     updateStatus('Click "Cast Line" to start fishing!');
@@ -399,6 +400,7 @@ async function selectFisherman(index) {
 
 function changeFisherman() {
     elements.gameScreen.style.display = 'none';
+    elements.fisherman.style.display = 'none';
     showSelectScreen();
 }
 
